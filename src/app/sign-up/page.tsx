@@ -130,7 +130,7 @@ export default function SignUpPage() {
 
   return (
     <section className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-[#f4efe0] px-4 py-10 font-sans sm:min-h-[calc(100vh-5.5rem)] lg:min-h-[calc(100vh-3.75rem)]">
-      <div className="w-full max-w-[460px] rounded-[2rem] bg-[#fcfaf3] p-6 shadow-[0_28px_70px_-40px_rgba(43,66,37,0.45)] ring-1 ring-[#dcd5c3] sm:p-9">
+      <div className="w-full max-w-115 rounded-4xl bg-[#fcfaf3] p-6 shadow-[0_28px_70px_-40px_rgba(43,66,37,0.45)] ring-1 ring-[#dcd5c3] sm:p-9">
         <div className="text-center">
           <h1 className="font-serif text-[2rem] font-black tracking-tight text-forest sm:text-[2.35rem]">
             Create Your <span className="text-clay">Account</span>
@@ -301,7 +301,9 @@ export default function SignUpPage() {
                   clearError("password");
                 }}
                 aria-invalid={Boolean(errors.password)}
-                aria-describedby={errors.password ? "password-error" : undefined}
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
                 placeholder="Enter your password"
                 className={`h-12 w-full rounded-xl border bg-[#fcfaf3] px-4 pr-12 text-[15px] text-forest outline-none transition placeholder:text-forest/40 focus:ring-2 ${
                   errors.password

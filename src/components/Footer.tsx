@@ -42,7 +42,7 @@ export default function Footer() {
 
   return (
     <footer className="">
-      <div className="mx-auto max-w-[1720px] overflow-hidden  bg-[#fbf7ea] ring-1 ring-[#e2dac8]">
+      <div className="mx-auto max-w-[1720px] overflow-hidden  bg-cream ring-1 ring-[#e2dac8]">
         <div className="grid gap-10 px-6 pt-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.25fr_0.85fr_0.85fr_0.85fr_1.15fr] lg:gap-0 lg:px-14 lg:pt-12">
           <div className="sm:col-span-2 lg:col-span-1 lg:pr-10">
             <Link href="/" className="flex items-center gap-3">
@@ -131,7 +131,7 @@ export default function Footer() {
         </div>
 
         <div className="px-6 sm:px-10 lg:px-14">
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-[#ded6c4] py-5 sm:flex-row">
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-sand py-5 sm:flex-row">
             <p className="text-sm font-medium text-forest/80">
               © 2026 CommonGround. All rights reserved.
             </p>
