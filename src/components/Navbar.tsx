@@ -60,10 +60,10 @@ export default function Navbar() {
   }
 
   return (
-    <header className="relative z-40">
+    <header className="sticky top-0 z-40">
       <nav
         aria-label="Primary"
-        className="mx-auto grid h-20 w-full max-w-[1720px] grid-cols-[1fr_auto_1fr] items-center gap-2 border border-white/60 bg-cream px-4 font-sans shadow-[0_18px_40px_-32px_rgba(17,54,34,0.45)] sm:h-22 sm:gap-4 sm:px-6 lg:h-15 lg:px-3"
+        className="mx-auto grid h-20 w-full max-w-[1720px] grid-cols-[1fr_auto_1fr] items-center gap-2 border border-white/60 bg-cream px-4 font-sans shadow-[0_18px_40px_-32px_rgba(17,54,34,0.45)] sm:h-15 sm:gap-4 sm:px-6 lg:h-20 lg:px-3"
       >
         <Link
           href="/"
@@ -127,10 +127,13 @@ export default function Navbar() {
               {isMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full z-50 mt-4 w-[min(92vw,380px)] rounded-[1.75rem] bg-cream p-5 shadow-[0_24px_60px_-24px_rgba(17,54,34,0.4)] ring-1 ring-forest/10"
+                  className="absolute right-0 top-full z-50 mt-3 max-h-[calc(100vh-6rem)] w-[calc(100vw-2rem)] max-w-95 overflow-y-auto rounded-3xl bg-cream p-4 shadow-[0_24px_60px_-24px_rgba(17,54,34,0.4)] ring-1 ring-forest/10 sm:mt-4 sm:rounded-[1.75rem] sm:p-5"
                 >
                   <div className="flex items-center gap-4">
-                    <ProfileAvatar user={user} className="h-12 w-12" />
+                    <ProfileAvatar
+                      user={user}
+                      className="h-11 w-11 sm:h-12 sm:w-12"
+                    />
                     <div className="min-w-0">
                       <p className="truncate font-bold text-forest">
                         {user.name}
@@ -200,23 +203,29 @@ function ProfileAvatar({
   user: { name?: string | null; image?: string | null };
   className?: string;
 }) {
-  const initials = (user.name ?? "?")
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
+  const nameParts = (user.name ?? "").trim().split(/\s+/).filter(Boolean);
+  const initials = nameParts.length
+    ? `${nameParts[0][0]}${
+        nameParts.length > 1 ? nameParts[nameParts.length - 1][0] : ""
+      }`.toUpperCase()
+    : "?";
 
   return (
     <span
       className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-forest text-sm font-bold text-cream ${className}`}
     >
-      {user.image ? (
+      <span aria-hidden="true">{initials}</span>
+      {user.image && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.image} alt="" className="h-full w-full object-cover" />
-      ) : (
-        initials
+        <img
+          src={user.image}
+          alt=""
+          referrerPolicy="no-referrer"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
       )}
     </span>
   );
