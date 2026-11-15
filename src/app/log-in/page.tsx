@@ -21,6 +21,7 @@ export default function LogInPage() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isOauthLoading, setIsOauthLoading] = useState(false);
 
   function clearError(field: keyof FormErrors) {
     setErrors((current) => {
@@ -73,6 +74,28 @@ export default function LogInPage() {
       setErrors({ form: "Something went wrong. Please try again." });
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleOauthLogin() {
+    setErrors({});
+    setIsOauthLoading(true);
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      });
+
+      if (error) {
+        setErrors({
+          form: error.message ?? "Unable to continue with Google.",
+        });
+        setIsOauthLoading(false);
+      }
+    } catch {
+      setErrors({ form: "Something went wrong. Please try again." });
+      setIsOauthLoading(false);
     }
   }
 
@@ -205,7 +228,7 @@ export default function LogInPage() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOauthLoading}
             className="mt-2 flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-forest px-6 text-base font-semibold text-cream shadow-sm transition-colors hover:bg-[#0a3f28] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fcfaf3] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? (
@@ -238,13 +261,27 @@ export default function LogInPage() {
 
         <button
           type="button"
-          className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#d8d1be] bg-white px-6 text-base font-semibold text-forest shadow-sm transition-colors hover:bg-[#fbf7ea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30"
+          onClick={handleOauthLogin}
+          disabled={isOauthLoading || isSubmitting}
+          className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#d8d1be] bg-white px-6 text-base font-semibold text-forest shadow-sm transition-colors hover:bg-[#fbf7ea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          <i
-            aria-hidden="true"
-            className="fa-brands fa-google text-[1.1rem] text-[#4285f4]"
-          />
-          Continue with Google
+          {isOauthLoading ? (
+            <>
+              <i
+                aria-hidden="true"
+                className="fa-solid fa-spinner animate-spin"
+              />
+              Redirecting...
+            </>
+          ) : (
+            <>
+              <i
+                aria-hidden="true"
+                className="fa-brands fa-google text-[1.1rem] text-[#4285f4]"
+              />
+              Continue with Google
+            </>
+          )}
         </button>
 
         <div className="mt-7 border-t border-[#ded6c4] pt-5 text-center text-sm font-medium text-forest">
