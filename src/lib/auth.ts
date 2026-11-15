@@ -8,6 +8,7 @@ export const auth = betterAuth({
   database: mongodbAdapter(client.db("CommonGround"), { client }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 6,
   },
   socialProviders: {
     google: {

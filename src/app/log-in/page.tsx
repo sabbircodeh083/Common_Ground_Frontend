@@ -44,8 +44,8 @@ export default function LogInPage() {
 
     if (!password) {
       nextErrors.password = "Password is required.";
-    } else if (password.length < 8) {
-      nextErrors.password = "Password must be at least 8 characters.";
+    } else if (password.length < 6) {
+      nextErrors.password = "Password must be at least 6 characters.";
     }
 
     if (nextErrors.email || nextErrors.password) {
