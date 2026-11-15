@@ -1,14 +1,79 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { authClient } from "@/lib/auth-client";
+
+type FormErrors = {
+  email?: string;
+  password?: string;
+  form?: string;
+};
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LogInPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function clearError(field: keyof FormErrors) {
+    setErrors((current) => {
+      if (!current[field] && !current.form) return current;
+      return { ...current, [field]: undefined, form: undefined };
+    });
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const nextErrors: FormErrors = {};
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      nextErrors.email = "Email address is required.";
+    } else if (!EMAIL_PATTERN.test(trimmedEmail)) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+
+    if (!password) {
+      nextErrors.password = "Password is required.";
+    } else if (password.length < 8) {
+      nextErrors.password = "Password must be at least 8 characters.";
+    }
+
+    if (nextErrors.email || nextErrors.password) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setErrors({});
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await authClient.signIn.email({
+        email: trimmedEmail,
+        password,
+      });
+
+      if (error) {
+        setErrors({
+          form: error.message ?? "Unable to log in. Please try again.",
+        });
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      setErrors({ form: "Something went wrong. Please try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -23,7 +88,20 @@ export default function LogInPage() {
           </p>
         </div>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-5">
+        <form onSubmit={onSubmit} noValidate className="mt-8 space-y-5">
+          {errors.form && (
+            <div
+              role="alert"
+              className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
+            >
+              <i
+                aria-hidden="true"
+                className="fa-solid fa-circle-exclamation mt-0.5 shrink-0"
+              />
+              <span>{errors.form}</span>
+            </div>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -41,9 +119,28 @@ export default function LogInPage() {
               type="email"
               autoComplete="email"
               required
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                clearError("email");
+              }}
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "email-error" : undefined}
               placeholder="Enter your email address"
-              className="h-12 w-full rounded-xl border border-[#d8d1be] bg-[#fcfaf3] px-4 text-[15px] text-forest outline-none transition placeholder:text-forest/40 focus:border-forest focus:ring-2 focus:ring-forest/15"
+              className={`h-12 w-full rounded-xl border bg-[#fcfaf3] px-4 text-[15px] text-forest outline-none transition placeholder:text-forest/40 focus:ring-2 ${
+                errors.email
+                  ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                  : "border-[#d8d1be] focus:border-forest focus:ring-forest/15"
+              }`}
             />
+            {errors.email && (
+              <p
+                id="email-error"
+                className="mt-1.5 text-xs font-medium text-red-600"
+              >
+                {errors.email}
+              </p>
+            )}
           </div>
 
           <div>
@@ -64,8 +161,22 @@ export default function LogInPage() {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
+                minLength={8}
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value);
+                  clearError("password");
+                }}
+                aria-invalid={Boolean(errors.password)}
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
                 placeholder="Enter your password"
-                className="h-12 w-full rounded-xl border border-[#d8d1be] bg-[#fcfaf3] px-4 pr-12 text-[15px] text-forest outline-none transition placeholder:text-forest/40 focus:border-forest focus:ring-2 focus:ring-forest/15"
+                className={`h-12 w-full rounded-xl border bg-[#fcfaf3] px-4 pr-12 text-[15px] text-forest outline-none transition placeholder:text-forest/40 focus:ring-2 ${
+                  errors.password
+                    ? "border-red-400 focus:border-red-500 focus:ring-red-500/15"
+                    : "border-[#d8d1be] focus:border-forest focus:ring-forest/15"
+                }`}
               />
               <button
                 type="button"
@@ -82,17 +193,38 @@ export default function LogInPage() {
                 />
               </button>
             </div>
+            {errors.password && (
+              <p
+                id="password-error"
+                className="mt-1.5 text-xs font-medium text-red-600"
+              >
+                {errors.password}
+              </p>
+            )}
           </div>
 
           <button
             type="submit"
-            className="mt-2 flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-forest px-6 text-base font-semibold text-cream shadow-sm transition-colors hover:bg-[#0a3f28] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fcfaf3]"
+            disabled={isSubmitting}
+            className="mt-2 flex h-12 w-full items-center justify-center gap-3 rounded-xl bg-forest px-6 text-base font-semibold text-cream shadow-sm transition-colors hover:bg-[#0a3f28] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fcfaf3] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <i
-              aria-hidden="true"
-              className="fa-solid fa-arrow-right-to-bracket"
-            />
-            Log In
+            {isSubmitting ? (
+              <>
+                <i
+                  aria-hidden="true"
+                  className="fa-solid fa-spinner animate-spin"
+                />
+                Logging in...
+              </>
+            ) : (
+              <>
+                <i
+                  aria-hidden="true"
+                  className="fa-solid fa-arrow-right-to-bracket"
+                />
+                Log In
+              </>
+            )}
           </button>
         </form>
 
