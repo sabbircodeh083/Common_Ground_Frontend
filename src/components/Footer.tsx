@@ -36,14 +36,10 @@ const supportLinks = [
 ];
 
 export default function Footer() {
-  function handleSubscribe(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
-
   return (
     <footer className="">
       <div className="mx-auto max-w-[1720px] overflow-hidden  bg-cream ring-1 ring-[#e2dac8]">
-        <div className="grid gap-10 px-6 pt-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.25fr_0.85fr_0.85fr_0.85fr_1.15fr] lg:gap-0 lg:px-14 lg:pt-12">
+        <div className="grid gap-10 px-6 pt-10 sm:grid-cols-2 sm:px-10 lg:grid-cols-[1.75fr_1.10fr_1.10fr_1.10fr] lg:gap-0 lg:px-14 lg:pt-12">
           <div className="sm:col-span-2 lg:col-span-1 lg:pr-10">
             <Link href="/" className="flex items-center gap-3">
               <Image
@@ -85,39 +81,6 @@ export default function Footer() {
           <FooterColumn title="Platform" links={platformLinks} />
           <FooterColumn title="For Users" links={userLinks} />
           <FooterColumn title="Support" links={supportLinks} />
-
-          <div className="sm:col-span-2 sm:border-t sm:border-[#e3dccb] sm:pt-8 lg:col-span-1 lg:border-l lg:border-t-0 lg:px-8 lg:pt-0 xl:px-10">
-            <FooterHeading>Stay Updated</FooterHeading>
-            <p className="mt-5 max-w-88 text-[15px] leading-6 text-forest/80">
-              Get updates about upcoming events and community stories.
-            </p>
-
-            <form
-              onSubmit={handleSubscribe}
-              className="mt-4 flex max-w-100 overflow-hidden rounded-xl border border-[#d8d1be] bg-white"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2 pl-4">
-                <i
-                  aria-hidden="true"
-                  className="fa-solid fa-envelope shrink-0 text-forest/70"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  required
-                  placeholder="Enter your email"
-                  className="h-12 w-full bg-transparent text-sm text-forest outline-none placeholder:text-forest/45"
-                />
-              </div>
-              <button
-                type="submit"
-                className="m-1 shrink-0 rounded-lg bg-forest px-4 text-sm font-semibold text-cream transition-colors hover:bg-[#0a3f28]"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
         </div>
 
         <div className="relative h-32 w-full sm:h-40 lg:h-44">
