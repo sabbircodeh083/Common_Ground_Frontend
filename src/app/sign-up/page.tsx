@@ -383,7 +383,7 @@ export default function SignUpPage() {
           </button>
         </form>
 
-        <div className="mt-7 border-t border-[#ded6c4] pt-5 text-center text-sm font-medium text-forest">
+        <div className="mt-7 border-t border-sand pt-5 text-center text-sm font-medium text-forest">
           Already have an account?{" "}
           <Link
             href="/log-in"

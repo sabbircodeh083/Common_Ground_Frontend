@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { SessionProvider } from "@/components/SessionProvider";
+import ToastProvider from "@/components/ToastProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,9 +41,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           referrerPolicy="no-referrer"
           precedence="default"
         />
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SessionProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <ToastProvider />
+        </SessionProvider>
       </body>
     </html>
   );

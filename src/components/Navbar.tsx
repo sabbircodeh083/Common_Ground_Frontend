@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useSessionContext } from "@/components/SessionProvider";
 
 const menuItems = [
   { label: "Create Event", href: "/events/create", icon: "fa-calendar-plus" },
@@ -13,9 +13,7 @@ const menuItems = [
 ] as const;
 
 export default function Navbar() {
-  const { data: session, isPending } = authClient.useSession();
-  const user = session?.user;
-
+  const { user, isPending, signOut } = useSessionContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -49,7 +47,7 @@ export default function Navbar() {
     setIsSigningOut(true);
 
     try {
-      await authClient.signOut();
+      await signOut();
       setIsMenuOpen(false);
       router.refresh();
     } catch (error) {
