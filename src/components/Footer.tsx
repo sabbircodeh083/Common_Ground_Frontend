@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { FormEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 
 const socialLinks = [
   { label: "YouTube", href: "https://www.youtube.com", icon: "fa-youtube" },
