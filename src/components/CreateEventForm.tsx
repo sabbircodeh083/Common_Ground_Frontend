@@ -19,6 +19,7 @@ type FormErrors = {
   thumbnailUrl?: string;
   location?: string;
   form?: string;
+  numberOfVolunteers?: string;
 };
 
 export type EventPayload = {
@@ -29,7 +30,11 @@ export type EventPayload = {
   description: string;
   thumbnailUrl: string;
   location: string;
+  numberOfVolunteers: number;
   organizerId: string;
+  organizerName: string;
+  organizerEmail: string;
+  organizerImage: string | null | undefined;
 };
 
 function toDateInputValue(date: Date) {
@@ -63,6 +68,7 @@ export default function CreateEventForm() {
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
+  const [numberOfVolunteers, setNumberOfVolunteers] = useState<number | "">("");
   const [eventType, setEventType] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
@@ -113,6 +119,13 @@ export default function CreateEventForm() {
     const trimmedLocation = location.trim();
     const trimmedThumbnail = thumbnailUrl.trim();
     const plainDescription = stripHtml(description);
+    const validVolunteersNumber = numberOfVolunteers;
+
+    if (!validVolunteersNumber) {
+      nextErrors.numberOfVolunteers = "Number of volunteers is required";
+    } else if (!Number.isInteger(validVolunteersNumber)) {
+      nextErrors.numberOfVolunteers = "Number of volunteers must be an integer";
+    }
 
     if (!trimmedTitle) {
       nextErrors.title = "Event title is required.";
@@ -186,7 +199,11 @@ export default function CreateEventForm() {
       description: description.trim(),
       thumbnailUrl: thumbnailUrl.trim(),
       location: location.trim(),
-      organizerId: user.id,
+      numberOfVolunteers: numberOfVolunteers as number,
+      organizerId: user?.id,
+      organizerName: user?.name,
+      organizerEmail: user.email,
+      organizerImage: user?.image,
     };
 
     try {
@@ -289,7 +306,7 @@ export default function CreateEventForm() {
           />
         </Field>
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-3">
           <Field
             id="event-type"
             label="Event Type"
@@ -361,6 +378,35 @@ export default function CreateEventForm() {
                 className={`${inputClass(errors.date)} pl-9`}
               />
             </div>
+          </Field>
+
+          <Field
+            id="number-of-volantier"
+            label="Number Of Volantier"
+            error={errors.numberOfVolunteers}
+            errorId="number-of-volantier-error"
+          >
+            <input
+              id="number-of-volantier"
+              name="numberOfVolunteers"
+              type="number"
+              autoComplete="off"
+              required
+              value={numberOfVolunteers}
+              onChange={(event) => {
+                const value = event.target.value;
+                setNumberOfVolunteers(value === "" ? "" : Number(value));
+                clearError("numberOfVolunteers");
+              }}
+              aria-invalid={Boolean(errors.numberOfVolunteers)}
+              aria-describedby={
+                errors.numberOfVolunteers
+                  ? "number-of-volantier-error"
+                  : undefined
+              }
+              placeholder="Set Volunteer Numbers"
+              className={inputClass(errors.numberOfVolunteers)}
+            />
           </Field>
         </div>
 

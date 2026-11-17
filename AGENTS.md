@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Next.js 16.4.6 App Router in `src/app`, React 19, Tailwind v4, Better Auth + MongoDB. Use npm (`package-lock.json`); there is no test runner or formatter config.
 - `@/*` maps to `src/*`. `PageProps`/`LayoutProps` route types are global; never import them.
 - `src/app/layout.tsx` wraps every page in `<SessionProvider>` plus `<Navbar>`, `<main>`, `<Footer>` and `<ToastProvider>`; most UI is client components.
-- Existing routes: `/`, `/log-in`, `/sign-up`, `/events`, `/events/create`, and the auth catch-all. `Navbar` also links to `/events/manage` and `/events/joined`, which are not implemented yet.
+- Existing routes: `/`, `/log-in`, `/sign-up`, `/events`, `/events/[EventId]`, `/events/create`, and the auth catch-all. `Navbar` also links to `/events/manage` and `/events/joined`, which are not implemented yet.
 
 ## Commands
 
@@ -32,7 +32,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Backend API
 
-- Two places talk to the backend: `POST ${NEXT_PUBLIC_API_URL}/events` from `src/components/CreateEventForm.tsx` with `{ title, type, date, description, thumbnailUrl, location, organizerId }` (organizerId = Better Auth user id), and `GET /events` from `src/components/UpcomingEvents.tsx` (filters to future dates client-side). No auth token is sent; the API does not check one.
+- Backend calls are plain `fetch` from client components: `POST ${NEXT_PUBLIC_API_URL}/events` in `CreateEventForm` (payload `{ title, type, date, description, thumbnailUrl, location, organizerId }`, organizerId = Better Auth user id), `GET /events` in `UpcomingEvents`, and `GET /events/:id` in `EventDetails`. No auth token is sent; the API does not check one.
+- `GET /events` already filters to upcoming dates server-side (Asia/Dhaka) and sorts ascending; `UpcomingEvents` still re-filters client-side. `GET /events/:id` also looks up the organizer in Better Auth's `user` collection and returns `organizer: { name, email, image } | null`.
 - The API is the sibling `../backend_API` (Express, `index.js`, default port 8000). Its `package.json` `dev`/`start` scripts point at a missing `src/server.js`; run `node index.js` there instead.
 - There is no fetch wrapper, query library, or env validation. Call `fetch` directly and handle a missing `NEXT_PUBLIC_API_URL` as the form does.
 - `Gallery`, `Stats`, `Banner`, `Newsletter` render hard-coded data; do not assume they are server-driven.
@@ -47,5 +48,6 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Framework gotchas
 
 - `next.config.ts` enables `cacheComponents`, `partialPrefetching`, React Compiler, `experimental.agentFeedback`, a `**` image allowlist, and the `@tailwindcss/turbopack` CSS loader. Read the version-matched guide under `node_modules/next/dist/docs/` before adding caching or data fetching; older App Router patterns may be wrong.
+- Under `cacheComponents`, reading route params with `useParams()` in a client component fails the build unless the component sits inside a `<Suspense>` boundary (see `src/app/events/[EventId]/page.tsx`).
 - `CreateEventForm`'s description editor is a raw `contentEditable` + `document.execCommand`; it submits the editor's HTML.
 - Generated/ignored: `next-env.d.ts`, `tsconfig.tsbuildinfo`, `.next/**` — never edit by hand.

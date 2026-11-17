@@ -9,7 +9,11 @@ export type EventData = {
   description: string;
   thumbnailUrl: string;
   location: string;
+  numberOfVolunteers: number;
   organizerId: string;
+  organizerName: string;
+  organizerEmail: string;
+  organizerImage: string | null | undefined;
 };
 
 type EventCardProps = {
