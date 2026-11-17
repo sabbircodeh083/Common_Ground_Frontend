@@ -8,8 +8,8 @@ import { useSessionContext } from "@/components/SessionProvider";
 
 const menuItems = [
   { label: "Create Event", href: "/events/create", icon: "fa-calendar-plus" },
-  { label: "Manage Events", href: "/events/manage", icon: "fa-calendar-days" },
-  { label: "Joined Events", href: "/events/joined", icon: "fa-user-group" },
+  { label: "Manage Events", href: "/manageEvents", icon: "fa-calendar-days" },
+  { label: "Joined Events", href: "/joinedEvents", icon: "fa-user-group" },
 ] as const;
 
 export default function Navbar() {

@@ -78,21 +78,19 @@ export default function EventCard({ event }: EventCardProps) {
           <span>{event.location}</span>
         </div>
 
-        <div className="flex flex-row justify-between">
-          {/* Title */}
-          <h3 className="line-clamp-1 font-serif text-xl font-bold text-[#123D2B]">
-            {event.title}
-          </h3>
+        {/* Title */}
+        <h3 className="line-clamp-1 font-serif text-xl font-bold text-[#123D2B]">
+          {event.title}
+        </h3>
 
-          {/* View details */}
-          <Link
-            className="text-blue-400 hover:text-blue-500 flex flex-row gap-1.5 items-center"
-            href={`/events/${event._id}`}
-          >
-            <p>View Details</p>
-            <i className="fa-solid fa-arrow-right"></i>
-          </Link>
-        </div>
+        {/* View details */}
+        <Link
+          className="text-blue-400 hover:text-blue-500 flex flex-row gap-1.5 items-center"
+          href={`/events/${event._id}`}
+        >
+          <p>View Details</p>
+          <i className="fa-solid fa-arrow-right"></i>
+        </Link>
       </div>
     </article>
   );
