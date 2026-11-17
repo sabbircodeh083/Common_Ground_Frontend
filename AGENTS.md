@@ -32,8 +32,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Backend API
 
-- Backend calls are plain `fetch` from client components: `POST ${NEXT_PUBLIC_API_URL}/events` in `CreateEventForm` (payload `{ title, type, date, description, thumbnailUrl, location, organizerId }`, organizerId = Better Auth user id), `GET /events` in `UpcomingEvents`, and `GET /events/:id` in `EventDetails`. No auth token is sent; the API does not check one.
-- `GET /events` already filters to upcoming dates server-side (Asia/Dhaka) and sorts ascending; `UpcomingEvents` still re-filters client-side. `GET /events/:id` also looks up the organizer in Better Auth's `user` collection and returns `organizer: { name, email, image } | null`.
+- Backend calls are plain `fetch` from client components: `POST ${NEXT_PUBLIC_API_URL}/events` in `CreateEventForm` (payload `{ title, type, date, description, thumbnailUrl, location, organizerId }`, organizerId = Better Auth user id), `GET /events-recent6` in `RecentEvents` (homepage carousel), `GET /events` in `UpcomingEvents`, `GET /events/:id` in `EventDetails`, and `POST /joinedEvent` from the details page's Join button (event payload plus `participantId`/`participantName`/`participantEmail` from `useSessionContext()`). No auth token is sent; the API does not check one.
+- `POST /joinedEvent` stores a row in `joinedEvent`, rejects duplicates/full events, and increments the event's `volunteerCount`; the Join button is disabled once `volunteerCount >= numberOfVolunteers`.
+- `GET /events` and `/events-recent6` filter to upcoming dates server-side (Asia/Dhaka) and sort ascending; the client components still re-filter/sort defensively. Event documents carry `organizerName`/`organizerEmail`/`organizerImage`, which the details page reads directly.
 - The API is the sibling `../backend_API` (Express, `index.js`, default port 8000). Its `package.json` `dev`/`start` scripts point at a missing `src/server.js`; run `node index.js` there instead.
 - There is no fetch wrapper, query library, or env validation. Call `fetch` directly and handle a missing `NEXT_PUBLIC_API_URL` as the form does.
 - `Gallery`, `Stats`, `Banner`, `Newsletter` render hard-coded data; do not assume they are server-driven.

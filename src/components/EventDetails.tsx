@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import type { EventData } from "@/components/EventCard";
+import { useSessionContext } from "@/components/SessionProvider";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -14,6 +15,17 @@ type EventDetailsData = EventData & {
 };
 
 type LoadStatus = "loading" | "success" | "error";
+
+type JoinErrorCode = "EVENT_FULL" | "ALREADY_JOINED";
+
+const JOIN_TOAST_MESSAGES: Record<JoinErrorCode, string> = {
+  EVENT_FULL: "Sorry, the maximum number of volunteers has arrived.",
+  ALREADY_JOINED: "You are already joined this event.",
+};
+
+function isJoinErrorCode(code: string | undefined): code is JoinErrorCode {
+  return code === "EVENT_FULL" || code === "ALREADY_JOINED";
+}
 
 const CATEGORY_ICONS: Record<string, string> = {
   cleanup: "fa-broom",
@@ -70,11 +82,13 @@ function initialsFromName(name: string) {
 export default function EventDetails() {
   const params = useParams<{ EventId: string }>();
   const eventId = params?.EventId;
+  const { user } = useSessionContext();
 
   const [event, setEvent] = useState<EventDetailsData | null>(null);
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
+  const [isJoining, setIsJoining] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -151,9 +165,81 @@ export default function EventDetails() {
     }
   }
 
-  function handleJoin() {
-    // No join endpoint exists yet; keep the action honest instead of faking it.
-    toast.info("Joining events is not available yet.");
+  async function handleJoin() {
+    if (!event) return;
+
+    if (!user) {
+      toast.info("Please log in to join this event.");
+      return;
+    }
+
+    const joinedCount = event.volunteerCount ?? 0;
+
+    if (joinedCount >= event.numberOfVolunteers) {
+      toast.info(JOIN_TOAST_MESSAGES.EVENT_FULL);
+      return;
+    }
+
+    setIsJoining(true);
+
+    try {
+      if (!API_URL) {
+        throw new Error(
+          "NEXT_PUBLIC_API_URL is not configured. Restart the dev server after updating .env.",
+        );
+      }
+      const { _id, ...eventData } = event;
+      const response = await fetch(`${API_URL}/joinedEvent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...eventData,
+          eventId: _id,
+          participantId: user.id,
+          participantEmail: user.email,
+          participantName: user.name,
+        }),
+      });
+
+      const data = (await response.json().catch(() => null)) as {
+        message?: string;
+        code?: string;
+        volunteerCount?: number;
+      } | null;
+
+      if (!response.ok) {
+        const errorCode = data?.code;
+
+        if (isJoinErrorCode(errorCode)) {
+          toast.info(JOIN_TOAST_MESSAGES[errorCode]);
+          return;
+        }
+
+        throw new Error(
+          data?.message ??
+            `The server responded with ${response.status} ${response.statusText}.`,
+        );
+      }
+
+      const nextCount =
+        typeof data?.volunteerCount === "number"
+          ? data.volunteerCount
+          : joinedCount + 1;
+
+      setEvent((current) =>
+        current ? { ...current, volunteerCount: nextCount } : current,
+      );
+      toast.success("You joined this event!");
+    } catch (error) {
+      console.error("Failed to join event", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setIsJoining(false);
+    }
   }
 
   if (status === "loading") {
@@ -196,6 +282,7 @@ export default function EventDetails() {
   const organizerName = event.organizerName.trim() || "Community Organizer";
   const organizerEmail = event.organizerEmail.trim();
   const volunteerCount = event.volunteerCount ?? 0;
+  const isFull = volunteerCount >= event.numberOfVolunteers;
 
   return (
     <>
@@ -276,10 +363,32 @@ export default function EventDetails() {
               <button
                 type="button"
                 onClick={handleJoin}
-                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#17843f] px-6 text-[14px] font-bold text-white shadow-sm transition-colors hover:bg-[#126c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17843f]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f3f7ee] sm:flex-none"
+                disabled={isJoining}
+                title={
+                  isFull
+                    ? "This event has reached its volunteer limit"
+                    : undefined
+                }
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#17843f] px-6 text-[14px] font-bold text-white shadow-sm transition-colors hover:bg-[#126c33] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#17843f]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f3f7ee] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[#17843f] sm:flex-none"
               >
-                <i aria-hidden="true" className="fa-regular fa-heart" />
-                Join Event
+                {isJoining ? (
+                  <i
+                    aria-hidden="true"
+                    className="fa-solid fa-spinner animate-spin"
+                  />
+                ) : (
+                  <i
+                    aria-hidden="true"
+                    className={
+                      isFull ? "fa-solid fa-lock" : "fa-regular fa-heart"
+                    }
+                  />
+                )}
+                {isJoining
+                  ? "Joining..."
+                  : isFull
+                    ? "Event Full"
+                    : "Join Event"}
               </button>
             </div>
           </div>
