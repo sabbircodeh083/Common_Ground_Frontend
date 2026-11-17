@@ -1,73 +1,93 @@
 import Image from "next/image";
+import Link from "next/link";
 
-export type EventCategory = "Cleanup" | "Plantation" | "Donation" | "Awareness";
-
-export type GalleryEvent = {
-  id: string;
+export type EventData = {
+  _id: string;
   title: string;
-  category: EventCategory;
+  type: string;
   date: string;
+  description: string;
+  thumbnailUrl: string;
   location: string;
-  image: string;
-  imageAlt: string;
+  organizerId: string;
 };
 
-const CATEGORY_ICONS: Record<EventCategory, string> = {
-  Cleanup: "fa-trash-can",
-  Plantation: "fa-leaf",
-  Donation: "fa-heart",
-  Awareness: "fa-bullhorn",
+type EventCardProps = {
+  event: EventData;
 };
 
-const CATEGORY_ICON_COLORS: Record<EventCategory, string> = {
-  Cleanup: "text-[#f59a4a]",
-  Plantation: "text-[#a9d488]",
-  Donation: "text-[#f59a4a]",
-  Awareness: "text-[#f59a4a]",
+const categoryIcons: Record<string, string> = {
+  cleanup: "fa-broom",
+  plantation: "fa-seedling",
+  donation: "fa-hand-holding-heart",
+  awareness: "fa-bullhorn",
 };
 
-export default function EventCard({ event }: { event: GalleryEvent }) {
+function formatEventDate(date: string) {
+  const [year, month, day] = date.split("-").map(Number);
+
+  if (!year || !month || !day) return date;
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+  }).format(new Date(year, month - 1, day));
+}
+
+export default function EventCard({ event }: EventCardProps) {
+  const category = event.type.toLowerCase();
+  const categoryIcon = categoryIcons[category] || "fa-leaf";
+
   return (
-    <article className="group relative overflow-hidden rounded-2xl bg-forest/10 shadow-[0_20px_45px_-32px_rgba(17,54,34,0.6)]">
-      <div className="relative aspect-[16/9]">
+    <article className="group overflow-hidden rounded-2xl border border-[#DDDCCB] bg-[#FFFEF8] shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      {/* Event Image */}
+      <div className="relative aspect-2/1 w-full overflow-hidden">
         <Image
-          src={event.image}
-          alt={event.imageAlt}
+          src={event.thumbnailUrl}
+          alt={event.title}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
-        />
+        {/* Category Badge */}
+        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-[#F7F5E8]/95 px-4 py-2 text-sm font-semibold text-[#164E36] shadow-sm backdrop-blur-sm">
+          <i className={`fa-solid ${categoryIcon}`} aria-hidden="true" />
+          <span className="capitalize">{event.type}</span>
+        </div>
 
-        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-          <h3 className="flex items-start gap-2 text-[15.5px] font-bold text-white sm:text-[16.5px]">
-            <i
-              aria-hidden="true"
-              className={`fa-solid ${CATEGORY_ICONS[event.category]} ${
-                CATEGORY_ICON_COLORS[event.category]
-              } mt-0.5 shrink-0 text-[0.95em]`}
-            />
-            <span>{event.title}</span>
+        {/* Date Badge */}
+        <div className="absolute right-4 top-4 flex items-center gap-2 rounded-xl bg-[#F7F5E8]/95 px-4 py-2 text-sm font-semibold text-[#173D2C] shadow-sm backdrop-blur-sm">
+          <i className="fa-regular fa-calendar-days" aria-hidden="true" />
+          {formatEventDate(event.date)}
+        </div>
+      </div>
+
+      {/* Event Information */}
+      <div className="space-y-3 p-5">
+        {/* Location */}
+        <div className="flex items-center gap-2 text-sm text-[#59635C]">
+          <i
+            className="fa-solid fa-location-dot shrink-0 text-[#164E36]"
+            aria-hidden="true"
+          />
+          <span>{event.location}</span>
+        </div>
+
+        <div className="flex flex-row justify-between">
+          {/* Title */}
+          <h3 className="line-clamp-1 font-serif text-xl font-bold text-[#123D2B]">
+            {event.title}
           </h3>
 
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] font-medium text-white/85">
-            <span className="flex items-center gap-1.5">
-              <i aria-hidden="true" className="fa-regular fa-calendar" />
-              {event.date}
-            </span>
-            <span
-              aria-hidden="true"
-              className="hidden h-3 w-px bg-white/35 sm:block"
-            />
-            <span className="flex items-center gap-1.5">
-              <i aria-hidden="true" className="fa-solid fa-location-dot" />
-              {event.location}
-            </span>
-          </div>
+          {/* View details */}
+          <Link
+            className="text-blue-400 hover:text-blue-500 flex flex-row gap-1.5 items-center"
+            href={`/events/${event._id}`}
+          >
+            <p>View Details</p>
+            <i className="fa-solid fa-arrow-right"></i>
+          </Link>
         </div>
       </div>
     </article>

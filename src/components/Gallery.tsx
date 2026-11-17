@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import EventCard from "@/components/EventCard";
-import type { EventCategory, GalleryEvent } from "@/components/EventCard";
+import GalleryEventCard from "@/components/GalleryEventCard";
+import type { EventCategory, Event } from "@/components/GalleryEventCard";
 
-const GALLERY_EVENTS: GalleryEvent[] = [
+const GALLERY_EVENTS: Event[] = [
   {
     id: "campus-clean-up",
     title: "Campus Clean-Up Drive",
@@ -12,7 +12,8 @@ const GALLERY_EVENTS: GalleryEvent[] = [
     date: "Nov 22, 2026",
     location: "AIUB Campus",
     image: "/Gallery_section_Image/Cleanup2.jpeg",
-    imageAlt: "Volunteers collecting waste in black bags during a campus clean-up",
+    imageAlt:
+      "Volunteers collecting waste in black bags during a campus clean-up",
   },
   {
     id: "tree-plantation",
@@ -39,7 +40,8 @@ const GALLERY_EVENTS: GalleryEvent[] = [
     date: "Sep 18, 2026",
     location: "Local School, Dhaka",
     image: "/Gallery_section_Image/Awarness1.jpeg",
-    imageAlt: "Volunteer leading an environmental awareness session at a school",
+    imageAlt:
+      "Volunteer leading an environmental awareness session at a school",
   },
   {
     id: "river-clean-up",
@@ -90,7 +92,7 @@ export default function Gallery() {
           <div className="flex items-center justify-center gap-4 sm:gap-6">
             <span
               aria-hidden="true"
-              className="hidden h-[3px] w-14 rounded-full bg-clay sm:block"
+              className="hidden h-0.75 w-14 rounded-full bg-clay sm:block"
             />
             <h2
               id="gallery-heading"
@@ -104,11 +106,11 @@ export default function Gallery() {
             </h2>
             <span
               aria-hidden="true"
-              className="hidden h-[3px] w-14 rounded-full bg-clay sm:block"
+              className="hidden h-0.75 w-14 rounded-full bg-clay sm:block"
             />
           </div>
 
-          <p className="mx-auto mt-4 max-w-[46rem] text-[14.5px] leading-6 font-medium text-forest/75 sm:text-base sm:leading-7">
+          <p className="mx-auto mt-4 max-w-184 text-[14.5px] leading-6 font-medium text-forest/75 sm:text-base sm:leading-7">
             Snapshots from our community service events, showing the power of
             people coming together for a cleaner, greener, and kinder world.
           </p>
@@ -148,7 +150,7 @@ export default function Gallery() {
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 sm:mt-9 lg:grid-cols-3">
           {visibleEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
+            <GalleryEventCard key={event.id} event={event} />
           ))}
         </div>
       </div>

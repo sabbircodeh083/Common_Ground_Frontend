@@ -252,18 +252,18 @@ export default function LogInPage() {
         </form>
 
         <div className="my-7 flex items-center gap-4">
-          <div className="h-px flex-1 bg-[#ded6c4]" />
+          <div className="h-px flex-1 bg-sand" />
           <span className="text-sm font-medium text-forest/65">
             Or continue with
           </span>
-          <div className="h-px flex-1 bg-[#ded6c4]" />
+          <div className="h-px flex-1 bg-sand" />
         </div>
 
         <button
           type="button"
           onClick={handleOauthLogin}
           disabled={isOauthLoading || isSubmitting}
-          className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#d8d1be] bg-white px-6 text-base font-semibold text-forest shadow-sm transition-colors hover:bg-[#fbf7ea] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 disabled:cursor-not-allowed disabled:opacity-70"
+          className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-[#d8d1be] bg-white px-6 text-base font-semibold text-forest shadow-sm transition-colors hover:bg-cream focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isOauthLoading ? (
             <>
@@ -284,7 +284,7 @@ export default function LogInPage() {
           )}
         </button>
 
-        <div className="mt-7 border-t border-[#ded6c4] pt-5 text-center text-sm font-medium text-forest">
+        <div className="mt-7 border-t border-sand pt-5 text-center text-sm font-medium text-forest">
           Don&apos;t have an account?{" "}
           <Link
             href="/sign-up"
