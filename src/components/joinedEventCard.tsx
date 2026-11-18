@@ -13,6 +13,7 @@ export type EventData = {
   thumbnailUrl: string;
   location: string;
   numberOfVolunteers: number;
+  eventId: string;
   organizerId: string;
   organizerName: string;
   organizerEmail: string;
@@ -130,7 +131,7 @@ export default function JoinedEventCard({ event }: EventCardProps) {
         <div className="flex flex-row justify-between items-center">
           <Link
             className="text-blue-400 hover:text-blue-500 flex flex-row gap-1.5 items-center"
-            href={`/events/${event._id}`}
+            href={`/events/${event.eventId}`}
           >
             <p>View Details</p>
             <i className="fa-solid fa-arrow-right"></i>

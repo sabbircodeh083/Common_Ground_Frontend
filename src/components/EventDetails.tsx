@@ -189,6 +189,7 @@ export default function EventDetails() {
         );
       }
       const { _id, ...eventData } = event;
+
       const response = await fetch(`${API_URL}/joinedEvent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

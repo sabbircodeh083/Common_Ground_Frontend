@@ -8,7 +8,7 @@ import JoinedEventCard from "./joinedEventCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-type ApiEvent = EventData & { _id?: string };
+type ApiEvent = EventData & { _id?: string; eventId: string };
 
 type LoadStatus = "loading" | "success" | "error";
 
