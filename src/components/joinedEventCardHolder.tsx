@@ -52,13 +52,14 @@ export default function JoinedEventsCardHolder() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/joinedEvent/list`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ participantId }),
-          cache: "no-store",
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `${API_URL}/joinedEvent/list/${participantId}`,
+          {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        );
 
         if (!response.ok) {
           throw new Error(
