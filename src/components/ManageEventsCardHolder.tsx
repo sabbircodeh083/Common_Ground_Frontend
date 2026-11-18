@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { EventData } from "@/components/EventCard";
+import { useSessionContext } from "@/components/SessionProvider";
 import ManageEventCard from "./ManageEventCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -18,10 +19,14 @@ function eventKey(event: ApiEvent, index: number) {
 }
 
 export default function ManageEventsCardHolder() {
+  const { user, isPending } = useSessionContext();
+
   const [events, setEvents] = useState<ApiEvent[]>([]);
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
+
+  const participantId = user?.id;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -39,10 +44,13 @@ export default function ManageEventsCardHolder() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/events`, {
-          cache: "no-store",
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `${API_URL}//organizedEvent/list/${participantId}`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        );
 
         if (!response.ok) {
           throw new Error(
@@ -71,7 +79,34 @@ export default function ManageEventsCardHolder() {
     loadEvents();
 
     return () => controller.abort();
-  }, [reloadToken]);
+  }, [isPending, participantId, reloadToken]);
+
+  if (!isPending && !user) {
+    return (
+      <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#d8cfb9] bg-[#fffdf7] px-6 py-14 text-center">
+        <i
+          aria-hidden="true"
+          className="fa-solid fa-user-lock text-3xl text-forest/40"
+        />
+        <p className="mt-3 font-serif text-xl font-bold text-forest">
+          Log in to see your organized events
+        </p>
+        <p className="mt-1 max-w-md text-sm font-medium text-forest/65">
+          Events you organized will appear here once you are signed in.
+        </p>
+        <Link
+          href="/log-in"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-clay px-5 py-2.5 text-[13.5px] font-bold text-white shadow-sm transition-colors hover:bg-[#c24714] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7]"
+        >
+          <i
+            aria-hidden="true"
+            className="fa-solid fa-arrow-right-to-bracket"
+          />
+          Log In
+        </Link>
+      </div>
+    );
+  }
 
   if (status === "error") {
     return (
