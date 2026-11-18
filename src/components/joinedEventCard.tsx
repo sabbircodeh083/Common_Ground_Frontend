@@ -1,9 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useSessionContext } from "@/components/SessionProvider";
-
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 export type EventData = {
   _id: string;
   title: string;
@@ -60,10 +62,14 @@ export default function JoinedEventCard({ event }: EventCardProps) {
     setIsLeaving(true);
 
     try {
+      const token = await getClientJwtToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/joinedEvent/${event._id}`,
         {
           method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
         },
       );
 

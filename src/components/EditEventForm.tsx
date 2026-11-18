@@ -7,6 +7,7 @@ import type { FormEvent, ReactNode } from "react";
 import { toast } from "react-toastify";
 import type { EventData } from "@/components/EventCard";
 import { useSessionContext } from "@/components/SessionProvider";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 const EVENT_TYPES = ["Cleanup", "Plantation", "Donation", "Awareness"];
 
@@ -80,9 +81,16 @@ export default function EditEventForm() {
       }
 
       try {
+        const token = await getClientJwtToken();
         const response = await fetch(
           `${API_URL}/events/${encodeURIComponent(eventId)}`,
-          { cache: "no-store", signal: controller.signal },
+          {
+            cache: "no-store",
+            signal: controller.signal,
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          },
         );
 
         if (!response.ok) {
@@ -328,12 +336,15 @@ function EditEventFormFields({ event }: { event: EventData }) {
           "NEXT_PUBLIC_API_URL is not configured. Restart the dev server after updating .env.",
         );
       }
-
+      const token = await getClientJwtToken();
       const response = await fetch(
         `${API_URL}/events/${encodeURIComponent(event._id)}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify(payload),
         },
       );

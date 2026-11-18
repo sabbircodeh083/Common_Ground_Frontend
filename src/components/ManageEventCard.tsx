@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 export type EventData = {
   _id: string;
@@ -45,10 +46,14 @@ export default function ManageEventCard({ event }: EventCardProps) {
 
   const handleDelete = async () => {
     try {
+      const token = await getClientJwtToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/events/${event._id}`,
         {
           method: "DELETE",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
         },
       );
       if (!response.ok) {

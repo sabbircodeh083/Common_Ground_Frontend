@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { EventData } from "@/components/EventCard";
 import { useSessionContext } from "@/components/SessionProvider";
 import ManageEventCard from "./ManageEventCard";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -44,11 +45,15 @@ export default function ManageEventsCardHolder() {
       }
 
       try {
+        const token = await getClientJwtToken();
         const response = await fetch(
           `${API_URL}/organizedEvent/list/${participantId}`,
           {
             cache: "no-store",
             signal: controller.signal,
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
           },
         );
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { EventData } from "@/components/EventCard";
 import { useSessionContext } from "@/components/SessionProvider";
 import JoinedEventCard from "./joinedEventCard";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -84,11 +85,13 @@ export default function JoinedEventsCardHolder() {
       }
 
       try {
+        const token = await getClientJwtToken();
         const response = await fetch(
           `${API_URL}/joinedEvent/list/${participantId}`,
           {
             method: "GET",
             cache: "no-store",
+            headers: { authorization: `Bearer ${token}` },
             signal: controller.signal,
           },
         );

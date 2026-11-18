@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { toast } from "react-toastify";
 import { useSessionContext } from "@/components/SessionProvider";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 const EVENT_TYPES = ["Cleanup", "Plantation", "Donation", "Awareness"];
 
@@ -212,10 +213,13 @@ export default function CreateEventForm() {
           "NEXT_PUBLIC_API_URL is not configured. Restart the dev server after updating .env.",
         );
       }
-
+      const token = await getClientJwtToken();
       const response = await fetch(`${API_URL}/events`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(payload),
       });
 
