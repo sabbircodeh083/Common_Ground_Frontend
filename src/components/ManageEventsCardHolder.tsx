@@ -45,7 +45,7 @@ export default function ManageEventsCardHolder() {
 
       try {
         const response = await fetch(
-          `${API_URL}//organizedEvent/list/${participantId}`,
+          `${API_URL}/organizedEvent/list/${participantId}`,
           {
             cache: "no-store",
             signal: controller.signal,
