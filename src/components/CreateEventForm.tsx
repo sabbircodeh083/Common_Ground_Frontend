@@ -102,6 +102,23 @@ export default function CreateEventForm() {
     clearError("description");
   }
 
+  // Cache Components keeps this page mounted (hidden via Activity) after we
+  // navigate away, so React state and the raw contentEditable DOM would still
+  // hold the previous event. Clear both after a successful create.
+  function resetForm() {
+    setTitle("");
+    setNumberOfVolunteers("");
+    setEventType("");
+    setDate("");
+    setDescription("");
+    setThumbnailUrl("");
+    setLocation("");
+    setErrors({});
+    if (editorRef.current) {
+      editorRef.current.innerHTML = "";
+    }
+  }
+
   function runEditorCommand(command: string, value?: string) {
     editorRef.current?.focus();
     document.execCommand(command, false, value);
@@ -235,6 +252,7 @@ export default function CreateEventForm() {
       }
 
       // The event is created only after the request above succeeds.
+      resetForm();
       toast.success("Event created successfully!");
       router.push("/events");
     } catch (err) {
