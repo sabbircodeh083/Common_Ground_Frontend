@@ -1,9 +1,10 @@
 import "server-only";
 import { headers } from "next/headers";
-import { auth } from "../auth";
+import { getAuth } from "../auth";
 
 export async function getServerJwtToken() {
   try {
+    const { auth } = await getAuth();
     const { token } = await auth.api.getToken({
       headers: await headers(),
     });

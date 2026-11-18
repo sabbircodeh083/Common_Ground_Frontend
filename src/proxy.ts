@@ -1,13 +1,14 @@
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "./lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
-// This function can be marked `async` if using `await` inside
-export async function proxy(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  const user = session?.user;
-  if (!user) {
+// Optimistic check only: the proxy runs before every protected navigation, so
+// it must not query the database. The API routes still verify the JWT before
+// returning or changing data.
+export function proxy(request: NextRequest) {
+  const sessionCookie = getSessionCookie(request);
+
+  if (!sessionCookie) {
     return NextResponse.redirect(new URL("/log-in", request.url));
   }
 
