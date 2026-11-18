@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Next.js 16.4.6 App Router in `src/app`, React 19, Tailwind v4, Better Auth + MongoDB. Use npm (`package-lock.json`); there is no test runner or formatter config.
 - `@/*` maps to `src/*`. `PageProps`/`LayoutProps` route types are global; never import them.
 - `src/app/layout.tsx` wraps every page in `<SessionProvider>` plus `<Navbar>`, `<main>`, `<Footer>` and `<ToastProvider>`; most UI is client components.
-- Existing routes: `/`, `/log-in`, `/sign-up`, `/events`, `/events/[EventId]`, `/events/create`, and the auth catch-all. `Navbar` also links to `/events/manage` and `/events/joined`, which are not implemented yet.
+- Existing routes: `/`, `/log-in`, `/sign-up`, `/events`, `/events/[EventId]`, `/events/create`, `/joinedEvents`, `/manageEvents`, `/editEvent/[EventId]`, and the auth catch-all.
 
 ## Commands
 
@@ -32,9 +32,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Backend API
 
-- Backend calls are plain `fetch` from client components: `POST ${NEXT_PUBLIC_API_URL}/events` in `CreateEventForm` (payload `{ title, type, date, description, thumbnailUrl, location, organizerId }`, organizerId = Better Auth user id), `GET /events-recent6` in `RecentEvents` (homepage carousel), `GET /events` in `UpcomingEvents`, `GET /events/:id` in `EventDetails`, and `POST /joinedEvent` from the details page's Join button (event payload plus `participantId`/`participantName`/`participantEmail` from `useSessionContext()`). No auth token is sent; the API does not check one.
-- `POST /joinedEvent` stores a row in `joinedEvent`, rejects duplicates/full events, and increments the event's `volunteerCount`; the Join button is disabled once `volunteerCount >= numberOfVolunteers`.
-- `GET /events` and `/events-recent6` filter to upcoming dates server-side (Asia/Dhaka) and sort ascending; the client components still re-filter/sort defensively. Event documents carry `organizerName`/`organizerEmail`/`organizerImage`, which the details page reads directly.
+- Backend calls are plain `fetch` from client components: `POST ${NEXT_PUBLIC_API_URL}/events` in `CreateEventForm` (payload `{ title, type, date, description, thumbnailUrl, location, organizerId }`, organizerId = Better Auth user id), `GET /events-recent6` in `RecentEvents` (homepage carousel), `GET /events` in `UpcomingEvents`, `GET /events/:id` in `EventDetails`, `POST /joinedEvent` from the details page's Join button (event payload plus `participantId`/`participantName`/`participantEmail` from `useSessionContext()`), and `POST /joinedEvent/list` in `joinedEventCardHolder` with `{ participantId }` in the JSON body. No auth token is sent; the API does not check one.
+- `POST /joinedEvent` writes only the participation fields (never the event's `_id`) to `joinedEvent`, rejects duplicates/full events, and increments the event's `volunteerCount`; the Join button is disabled once `volunteerCount >= numberOfVolunteers`. `POST /joinedEvent/list` looks up the participant's `eventId`s and returns the matching event documents.
+- `GET /events` and `/events-recent6` filter to upcoming dates server-side (Asia/Dhaka) and sort ascending; `UpcomingEvents`/`RecentEvents` re-filter defensively, while `joinedEventCardHolder` and `ManageEventsCardHolder` render the API list as-is. Event documents carry `organizerName`/`organizerEmail`/`organizerImage`, which the details page reads directly.
 - The API is the sibling `../backend_API` (Express, `index.js`, default port 8000). Its `package.json` `dev`/`start` scripts point at a missing `src/server.js`; run `node index.js` there instead.
 - There is no fetch wrapper, query library, or env validation. Call `fetch` directly and handle a missing `NEXT_PUBLIC_API_URL` as the form does.
 - `Gallery`, `Stats`, `Banner`, `Newsletter` render hard-coded data; do not assume they are server-driven.

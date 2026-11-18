@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { useSessionContext } from "@/components/SessionProvider";
 
 export type EventData = {
   _id: string;
@@ -29,6 +31,8 @@ const categoryIcons: Record<string, string> = {
 };
 
 function formatEventDate(date: string) {
+  if (typeof date !== "string") return "";
+
   const [year, month, day] = date.split("-").map(Number);
 
   if (!year || !month || !day) return date;
@@ -40,26 +44,46 @@ function formatEventDate(date: string) {
 }
 
 export default function JoinedEventCard({ event }: EventCardProps) {
-  const category = event.type.toLowerCase();
+  const { user } = useSessionContext();
+  const [isLeaving, setIsLeaving] = useState(false);
+
+  const category = (event.type ?? "").toLowerCase();
   const categoryIcon = categoryIcons[category] || "fa-leaf";
 
   const handleLeaveEvent = async () => {
+    if (!user) {
+      toast.info("Please log in to leave this event.");
+      return;
+    }
+
+    setIsLeaving(true);
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/events/${event._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/joinedEvent/${event._id}`,
         {
           method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participantId: user.id }),
         },
       );
+
+      const data = (await response.json().catch(() => null)) as {
+        message?: string;
+      } | null;
+
       if (!response.ok) {
-        toast.error("Unsucessfull evetn Deletion");
-      } else {
-        toast.success("Sucessfull evetn Deletion");
-        window.location.reload();
+        toast.error(data?.message ?? "Couldn't leave this event.");
+        return;
       }
+
+      toast.success("You left this event.");
+      window.location.reload();
     } catch (err) {
-      console.log("error for event deletion", err);
-      toast.error("Unsucessfull evetn Deletion");
+      console.error("Failed to leave event", err);
+      toast.error("Couldn't leave this event. Please try again.");
+    } finally {
+      setIsLeaving(false);
     }
   };
 
@@ -117,10 +141,11 @@ export default function JoinedEventCard({ event }: EventCardProps) {
           <button
             type="button"
             onClick={handleLeaveEvent}
-            className="flex items-center justify-center gap-2 rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white"
+            disabled={isLeaving}
+            className="flex items-center justify-center gap-2 rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-transparent disabled:hover:text-red-600"
           >
-            <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
-            Leave Event
+            <i aria-hidden="true" className="fa-solid fa-right-from-bracket" />
+            {isLeaving ? "Leaving..." : "Leave Event"}
           </button>
         </div>
       </div>

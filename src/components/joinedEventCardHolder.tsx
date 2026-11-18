@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { EventData } from "@/components/EventCard";
-import ManageEventCard from "./ManageEventCard";
+import { useSessionContext } from "@/components/SessionProvider";
 import JoinedEventCard from "./joinedEventCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -14,31 +14,32 @@ type LoadStatus = "loading" | "success" | "error";
 
 const SKELETON_COUNT = 6;
 
-function startOfToday() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
-}
-
-function isUpcoming(date: string) {
-  const eventDate = new Date(`${date}T00:00:00`);
-  return !Number.isNaN(eventDate.getTime()) && eventDate >= startOfToday();
-}
-
 function eventKey(event: ApiEvent, index: number) {
   return event._id ?? `${event.title}-${event.date}-${index}`;
 }
 
 export default function JoinedEventsCardHolder() {
+  const { user, isPending } = useSessionContext();
+
   const [events, setEvents] = useState<ApiEvent[]>([]);
   const [status, setStatus] = useState<LoadStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
 
+  const participantId = user?.id;
+
   useEffect(() => {
     const controller = new AbortController();
 
     async function loadEvents() {
+      if (isPending) return;
+
+      if (!participantId) {
+        setEvents([]);
+        setStatus("success");
+        return;
+      }
+
       setStatus("loading");
       setErrorMessage("");
 
@@ -51,7 +52,10 @@ export default function JoinedEventsCardHolder() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/events`, {
+        const response = await fetch(`${API_URL}/joinedEvent/list`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ participantId }),
           cache: "no-store",
           signal: controller.signal,
         });
@@ -65,20 +69,12 @@ export default function JoinedEventsCardHolder() {
         const data: unknown = await response.json();
         const list: ApiEvent[] = Array.isArray(data) ? data : [];
 
-        // Only future events belong on this page, soonest first.
-        const upcoming = list
-          .filter(
-            (event) =>
-              typeof event?.date === "string" && isUpcoming(event.date),
-          )
-          .sort((a, b) => a.date.localeCompare(b.date));
-
-        setEvents(upcoming);
+        setEvents(list);
         setStatus("success");
       } catch (error) {
         if (controller.signal.aborted) return;
 
-        console.error("Failed to load events", error);
+        console.error("Failed to load joined events", error);
         setStatus("error");
         setErrorMessage(
           error instanceof Error
@@ -91,7 +87,34 @@ export default function JoinedEventsCardHolder() {
     loadEvents();
 
     return () => controller.abort();
-  }, [reloadToken]);
+  }, [isPending, participantId, reloadToken]);
+
+  if (!isPending && !user) {
+    return (
+      <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#d8cfb9] bg-[#fffdf7] px-6 py-14 text-center">
+        <i
+          aria-hidden="true"
+          className="fa-solid fa-user-lock text-3xl text-forest/40"
+        />
+        <p className="mt-3 font-serif text-xl font-bold text-forest">
+          Log in to see your joined events
+        </p>
+        <p className="mt-1 max-w-md text-sm font-medium text-forest/65">
+          Events you join will appear here once you are signed in.
+        </p>
+        <Link
+          href="/log-in"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-clay px-5 py-2.5 text-[13.5px] font-bold text-white shadow-sm transition-colors hover:bg-[#c24714] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7]"
+        >
+          <i
+            aria-hidden="true"
+            className="fa-solid fa-arrow-right-to-bracket"
+          />
+          Log In
+        </Link>
+      </div>
+    );
+  }
 
   if (status === "error") {
     return (
@@ -106,7 +129,7 @@ export default function JoinedEventsCardHolder() {
           />
           <div>
             <p className="text-sm font-bold">
-              Couldn&apos;t load upcoming events
+              Couldn&apos;t load joined events
             </p>
             <p className="mt-0.5 text-[13px] font-medium">{errorMessage}</p>
           </div>
@@ -129,7 +152,7 @@ export default function JoinedEventsCardHolder() {
         aria-live="polite"
         className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
       >
-        <span className="sr-only">Loading upcoming events…</span>
+        <span className="sr-only">Loading joined events…</span>
         {Array.from({ length: SKELETON_COUNT }, (_, index) => (
           <div
             key={index}
@@ -155,18 +178,17 @@ export default function JoinedEventsCardHolder() {
           className="fa-regular fa-calendar-xmark text-3xl text-forest/40"
         />
         <p className="mt-3 font-serif text-xl font-bold text-forest">
-          No organized events yet
+          No joined events yet
         </p>
         <p className="mt-1 max-w-md text-sm font-medium text-forest/65">
-          New community events will appear here as soon as you Organized a
-          event.
+          Events you join will appear here once you sign up for them.
         </p>
         <Link
-          href="/events/create"
+          href="/events"
           className="mt-5 inline-flex items-center gap-2 rounded-lg bg-clay px-5 py-2.5 text-[13.5px] font-bold text-white shadow-sm transition-colors hover:bg-[#c24714] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fffdf7]"
         >
-          <i aria-hidden="true" className="fa-solid fa-plus" />
-          Create an event
+          <i aria-hidden="true" className="fa-solid fa-calendar-days" />
+          Browse events
         </Link>
       </div>
     );

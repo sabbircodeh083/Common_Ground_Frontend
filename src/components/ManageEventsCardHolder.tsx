@@ -13,17 +13,6 @@ type LoadStatus = "loading" | "success" | "error";
 
 const SKELETON_COUNT = 6;
 
-function startOfToday() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
-}
-
-function isUpcoming(date: string) {
-  const eventDate = new Date(`${date}T00:00:00`);
-  return !Number.isNaN(eventDate.getTime()) && eventDate >= startOfToday();
-}
-
 function eventKey(event: ApiEvent, index: number) {
   return event._id ?? `${event.title}-${event.date}-${index}`;
 }
@@ -64,15 +53,7 @@ export default function ManageEventsCardHolder() {
         const data: unknown = await response.json();
         const list: ApiEvent[] = Array.isArray(data) ? data : [];
 
-        // Only future events belong on this page, soonest first.
-        const upcoming = list
-          .filter(
-            (event) =>
-              typeof event?.date === "string" && isUpcoming(event.date),
-          )
-          .sort((a, b) => a.date.localeCompare(b.date));
-
-        setEvents(upcoming);
+        setEvents(list);
         setStatus("success");
       } catch (error) {
         if (controller.signal.aborted) return;
@@ -104,9 +85,7 @@ export default function ManageEventsCardHolder() {
             className="fa-solid fa-circle-exclamation mt-0.5 shrink-0"
           />
           <div>
-            <p className="text-sm font-bold">
-              Couldn&apos;t load upcoming events
-            </p>
+            <p className="text-sm font-bold">Couldn&apos;t load events</p>
             <p className="mt-0.5 text-[13px] font-medium">{errorMessage}</p>
           </div>
         </div>
@@ -128,7 +107,7 @@ export default function ManageEventsCardHolder() {
         aria-live="polite"
         className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
       >
-        <span className="sr-only">Loading upcoming events…</span>
+        <span className="sr-only">Loading events…</span>
         {Array.from({ length: SKELETON_COUNT }, (_, index) => (
           <div
             key={index}
