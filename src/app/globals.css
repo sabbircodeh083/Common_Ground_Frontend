@@ -1,31 +1,213 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: `ThemeToggle` toggles `.dark` on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Semantic palette, overridden by `.dark` below. */
+  --cg-cream: #fbf7ea;
+  --cg-forest: #0b4a2f;
+  --cg-sand: #ded6c4;
+  --cg-clay: #d9551b;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #0b110d;
+  --foreground: #e8efe6;
+
+  --cg-cream: #131a15;
+  --cg-forest: #e2f0e0;
+  --cg-sand: #2f3d31;
+  --cg-clay: #ff8a4c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-cream: #fbf7ea;
-  --color-forest: #0b4a2f;
-  --color-sand: #ded6c4;
-  --color-clay: #d9551b;
+  --color-cream: var(--cg-cream);
+  --color-forest: var(--cg-forest);
+  --color-sand: var(--cg-sand);
+  --color-clay: var(--cg-clay);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-fraunces);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/*
+ * Theme toggle icon.
+ *
+ * Font Awesome sets `display` on `.fa-solid`, and its CDN stylesheet loads
+ * after Tailwind, so `hidden` on the icon itself loses to it. The display
+ * switch therefore lives on these wrapper spans, which FA never matches.
+ *
+ * Light theme shows the moon (switch to dark), dark theme shows the sun.
+ */
+.theme-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-icon--sun {
+  display: none;
+}
+
+.dark .theme-toggle-icon--sun {
+  display: inline-flex;
+}
+
+.dark .theme-toggle-icon--moon {
+  display: none;
+}
+
+/*
+ * Dark mode for the hard-coded hex utilities used across the components.
+ * Tokens (cream/forest/sand/clay) flip through the variables above; these
+ * rules cover the literal `bg-[#...]`, `text-[#...]` and `border-[#...]`
+ * classes that Tailwind compiles to fixed colours. Add new entries here when
+ * a light-only surface shows up in dark mode.
+ */
+.dark [class~="bg-[#fbf1e4]"],
+.dark [class~="bg-[#f4f4f1]"] {
+  background-color: #0b110d;
+}
+
+.dark [class~="bg-[#fffdf7]"],
+.dark [class~="bg-[#FFFEF8]"],
+.dark [class~="bg-[#fdfefb]"],
+.dark [class~="bg-[#fdfcf7]"],
+.dark [class~="bg-[#fdfbf2]"],
+.dark [class~="bg-[#fcfaf3]"],
+.dark [class~="bg-[#fbf7ea]"],
+.dark [class~="bg-[#F7F5E8]"],
+.dark [class~="bg-[#fbf6e9]"],
+.dark [class~="bg-[#fdf6e3]"] {
+  background-color: #151d17;
+}
+
+.dark [class~="bg-[#f7f1e1]"],
+.dark [class~="bg-[#f4efe0]"],
+.dark [class~="bg-[#f3eddc]"],
+.dark [class~="bg-[#f0e8d4]"],
+.dark [class~="bg-[#f1f6e6]"],
+.dark [class~="bg-[#eef4e7]"],
+.dark [class~="bg-[#f1edde]"],
+.dark [class~="bg-[#e9f2d5]"],
+.dark [class~="bg-[#e9f0da]"],
+.dark [class~="bg-[#e8f1d8]"],
+.dark [class~="bg-[#e8efd8]"],
+.dark [class~="bg-[#e4ddcc]"],
+.dark [class~="bg-[#e1ecd9]"],
+.dark [class~="bg-[#dce8c8]"],
+.dark [class~="bg-[#f3f7ee]"] {
+  background-color: #1b2a20;
+}
+
+.dark [class~="hover:bg-[#eef4e7]"]:hover,
+.dark [class~="hover:bg-[#f1edde]"]:hover,
+.dark [class~="hover:bg-[#f3eddc]"]:hover,
+.dark [class~="hover:bg-[#f0e8d4]"]:hover,
+.dark [class~="hover:bg-[#f1f6e6]"]:hover,
+.dark [class~="hover:bg-[#dce8c8]"]:hover,
+.dark [class~="hover:bg-white"]:hover {
+  background-color: #1b2a20;
+}
+
+/*
+ * Primary buttons use `bg-forest text-cream`, which inverts to light-on-dark in
+ * dark mode; their darker green hover has to move in the same direction.
+ */
+.dark [class~="hover:bg-[#0a3f28]"]:hover {
+  background-color: #cfe4cd;
+}
+
+/* The navbar hairline is white at 60% opacity for the cream header. */
+.dark [class~="border-white/60"] {
+  border-color: rgb(255 255 255 / 0.08);
+}
+
+.dark [class~="bg-[#f8e6dc]"] {
+  background-color: #2b1a12;
+}
+
+.dark [class~="text-[#164E36]"],
+.dark [class~="text-[#173D2C]"],
+.dark [class~="text-[#123D2B]"] {
+  color: #e6f2e6;
+}
+
+.dark [class~="text-[#59635C]"] {
+  color: #a9b9ac;
+}
+
+.dark [class~="text-[#2f8a3e]"],
+.dark [class~="text-[#3f7d34]"],
+.dark [class~="text-[#4a8b3a]"],
+.dark [class~="text-[#5e8c3a]"] {
+  color: #8ad69a;
+}
+
+.dark [class~="text-[#b8480f]"],
+.dark [class~="text-[#c24714]"] {
+  color: #ff9d6b;
+}
+
+.dark [class~="text-[#a9d488]"] {
+  color: #cfe8b8;
+}
+
+.dark [class~="border-[#DDDCCB]"],
+.dark [class~="border-[#d8d1be]"],
+.dark [class~="border-[#d8cfb9]"],
+.dark [class~="border-[#ddd5c2]"],
+.dark [class~="border-[#e6e2d5]"],
+.dark [class~="border-[#e3d8c0]"],
+.dark [class~="border-[#e2d9c6]"],
+.dark [class~="border-[#eee6d5]"],
+.dark [class~="border-[#e8d9b6]"],
+.dark [class~="border-[#e4ddca]"],
+.dark [class~="border-[#e3dccb]"],
+.dark [class~="border-[#e2dcca]"],
+.dark [class~="border-[#e3ead4]"],
+.dark [class~="border-[#dfe5d5]"],
+.dark [class~="border-[#cfdcc5]"],
+.dark [class~="border-[#c9d3b6]"],
+.dark [class~="border-[#9cae7d]"],
+.dark [class~="border-[#164E36]"] {
+  border-color: #2c3a2f;
+}
+
+.dark [class~="ring-[#e7ddc8]"],
+.dark [class~="ring-[#dcd5c3]"],
+.dark [class~="ring-[#e2dac8]"] {
+  --tw-ring-color: #2c3a2f;
+}
+
+/*
+ * Plain `bg-white` surfaces (form inputs, the Google button, dialog buttons)
+ * would stay bright while their `text-forest` flips to light, so they get the
+ * same raised surface as the cream cards.
+ */
+.dark [class~="bg-white"] {
+  background-color: #151d17;
+}
+
+/* Danger buttons pair a white surface with dark red text. */
+.dark [class~="text-red-700"] {
+  color: #fca5a5;
+}
+
+.dark [class~="hover:bg-red-100"]:hover {
+  background-color: #3a1d1d;
 }

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import type { EventData } from "@/components/EventCard";
 import { useSessionContext } from "@/components/SessionProvider";
+import { getClientJwtToken } from "@/lib/Token/getClientToken";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -188,11 +189,15 @@ export default function EventDetails() {
           "NEXT_PUBLIC_API_URL is not configured. Restart the dev server after updating .env.",
         );
       }
+      const token = await getClientJwtToken();
       const { _id, ...eventData } = event;
 
       const response = await fetch(`${API_URL}/joinedEvent`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           ...eventData,
           eventId: _id,
@@ -305,7 +310,7 @@ export default function EventDetails() {
             className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-black/5"
           />
 
-          <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-white/95 px-3.5 py-2 text-[12.5px] font-bold text-forest shadow-sm backdrop-blur sm:left-6 sm:top-6">
+          <span className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-cream/95 px-3.5 py-2 text-[12.5px] font-bold text-forest shadow-sm backdrop-blur sm:left-6 sm:top-6">
             <i aria-hidden="true" className={`fa-solid ${categoryIcon}`} />
             <span className="capitalize">{event.type}</span>
           </span>
@@ -357,7 +362,7 @@ export default function EventDetails() {
                 type="button"
                 onClick={handleShare}
                 aria-label="Share this event"
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#cfdcc5] bg-white text-forest transition-colors hover:bg-[#eef4e7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-[#cfdcc5] bg-cream text-forest transition-colors hover:bg-[#eef4e7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest/30"
               >
                 <i aria-hidden="true" className="fa-solid fa-share-nodes" />
               </button>

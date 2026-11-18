@@ -81,13 +81,13 @@ export default function ManageEventCard({ event }: EventCardProps) {
         />
 
         {/* Category Badge */}
-        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-[#F7F5E8]/95 px-4 py-2 text-sm font-semibold text-[#164E36] shadow-sm backdrop-blur-sm">
+        <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-cream/95 px-4 py-2 text-sm font-semibold text-forest shadow-sm backdrop-blur-sm">
           <i className={`fa-solid ${categoryIcon}`} aria-hidden="true" />
           <span className="capitalize">{event.type}</span>
         </div>
 
         {/* Date Badge */}
-        <div className="absolute right-4 top-4 flex items-center gap-2 rounded-xl bg-[#F7F5E8]/95 px-4 py-2 text-sm font-semibold text-[#173D2C] shadow-sm backdrop-blur-sm">
+        <div className="absolute right-4 top-4 flex items-center gap-2 rounded-xl bg-cream/95 px-4 py-2 text-sm font-semibold text-forest shadow-sm backdrop-blur-sm">
           <i className="fa-regular fa-calendar-days" aria-hidden="true" />
           {formatEventDate(event.date)}
         </div>

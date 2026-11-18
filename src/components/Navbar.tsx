@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useSessionContext } from "@/components/SessionProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const menuItems = [
   { label: "Create Event", href: "/events/create", icon: "fa-calendar-plus" },
@@ -49,6 +50,7 @@ export default function Navbar() {
     try {
       await signOut();
       setIsMenuOpen(false);
+      router.push("/");
       router.refresh();
     } catch (error) {
       console.error("Failed to log out", error);
@@ -87,7 +89,9 @@ export default function Navbar() {
           Upcoming Events
         </Link>
 
-        <div className="flex items-center justify-self-end">
+        <div className="flex items-center justify-self-end gap-2 sm:gap-3">
+          <ThemeToggle />
+
           {isPending ? (
             <div
               aria-hidden="true"
