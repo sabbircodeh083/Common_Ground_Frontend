@@ -63,8 +63,6 @@ export default function JoinedEventCard({ event }: EventCardProps) {
         `${process.env.NEXT_PUBLIC_API_URL}/joinedEvent/${event._id}`,
         {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ participantId: user.id }),
         },
       );
 
