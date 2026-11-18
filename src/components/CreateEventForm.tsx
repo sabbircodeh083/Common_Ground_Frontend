@@ -232,6 +232,7 @@ export default function CreateEventForm() {
 
       // The event is created only after the request above succeeds.
       toast.success("Event created successfully!");
+      router.push("/events");
     } catch (err) {
       console.error("Failed to create event", err);
       setErrors({

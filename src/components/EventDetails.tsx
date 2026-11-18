@@ -340,9 +340,9 @@ export default function EventDetails() {
               </span>
               <div>
                 <p className="text-[15px] font-bold text-forest ">
-                  <span className="text-blue-400">{volunteerCount}</span>/
-                  <span className="text-blue-600">
-                    {event.numberOfVolunteers}
+                  <span className="text-blue-600">{volunteerCount}</span>/
+                  <span className="text-blue-400 text-[12px]">
+                    {event.numberOfVolunteers}{" "}
                   </span>
                   Volunteers Joined
                 </p>

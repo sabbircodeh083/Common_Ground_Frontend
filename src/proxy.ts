@@ -17,7 +17,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/editEvent/:path*",
-    "/events/:path*",
+    "/events/create",
     "/joinedEvents",
     "/manageEvents",
   ],
